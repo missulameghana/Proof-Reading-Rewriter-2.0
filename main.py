@@ -2,8 +2,10 @@ from rewriter import syno
 import re
 import nltk
 string = input("Enter some text: ")
-no_specials_string = re.sub('[!#?,:";]', '', string)
-sentences = no_specials_string.split('.')
+no_specials_string = re.sub('[#,:";]', '', string)
+sentences=re.split('\? |\?|\. |\.|! |!',no_specials_string)
+sentences.pop();
+#print(sentences)
 words = []
 tags = ['NN','NNS','JJ','JJR','JJS','FW','RB','RBR','RBS']
 tags_v = ['VB','VBD','VBG','VBN','VBP','VBZ']
@@ -18,7 +20,7 @@ for sentence in sentences:
     	elif pos in tags_v:
     		if word_lower not in helping_verbs:
     			words.append(word)
-
+#print(words)
 for word in list(dict.fromkeys(words)):
 	syno_list = syno(word)	
 	if syno_list:

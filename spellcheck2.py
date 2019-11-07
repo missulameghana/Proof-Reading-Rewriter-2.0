@@ -2,12 +2,11 @@ import nltk
 import re
 with open('words') as word_file:
 	english_words=set(word_file.read().split())
-var = input()
+var = input("Enter some text: ")
 b=0;
 i=0;
 l=[];
 lines=re.split('\? |\?|\. |\.|! |!',var);
-print(lines);
 for x in lines:
 	if(i!=len(lines)-1):
 		x1=x.split(" ");
