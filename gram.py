@@ -6,7 +6,7 @@ def joinlist(l):
 	return '/'.join(l)
 WHfam=["What","When","Where","Who","Whom","Which","Whose","Why","How"]
 Demons=["this","that","these","those"]
-Aux=['be', 'am', 'are', 'is', 'being', 'was', 'were', 'been', "aren't", "isn't", "wasn't", "weren't"]
+Aux=['be', 'am', 'are', 'is', 'being', 'was', 'were', 'been'] #, "aren't", "isn't", "wasn't", "weren't"]
 Verbs=["VBZ","VB","VBP","VBD","VBN","VBG"]
 Perfect=["has","have","had"]
 Future=["will","shall","should","would"]
@@ -14,7 +14,8 @@ Possessives=[["i","my","me","mine"],["she","her","hers"],["he","him","his"],["yo
 Poss=["i","my","me","mine","she","her","hers","he","him","his","you","your","yours","it","its","we","us","our","ours","they","them","their","theirs"]
 
 
-var=input()
+instr=input()
+var=instr.lower()
 # token=nltk.word_tokenize(var)
 trigrams=ngrams(var,3)
 
@@ -51,6 +52,7 @@ def process(s):
 	x=parse(s,tokenize=True,tags=True,chunks=True,encoding='utf-8')
 	lis=x.split(" ")
 	l=[]
+	print(lis)
 	for ele in lis:
 		y=ele.split("/")[1]
 		word=ele.split("/")[0]
@@ -64,9 +66,11 @@ def process(s):
 					l=l+[joinlist(xyz)]
 					break
 		elif y in Verbs:
+			# print(word)
 			if word in Aux:
 				l=l+[joinlist(Aux)]
 			else:
+				# print("Hi")
 				l=l+[joinlist(lexeme(word))]
 		else:
 			l=l+[word]
@@ -90,7 +94,7 @@ def processWH(s):
 	return " ".join(l)
 
 # print(process("He play cricket"))
-threshold=500;
+threshold=10000;
 # threshold_f=;
 count = 0;
 final_suggestions=[]
@@ -108,7 +112,7 @@ for t in trigrams:
 		final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
 	elif(threshold>=s[st.lower()]):
 		suggest=process(st)
-		# print(suggest)
+		print(suggest)
 		final=query(suggest,6)
 		final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
 		# print(final)
