@@ -8,6 +8,11 @@ WHfam=["What","When","Where","Who","Whom","Which","Whose","Why","How"]
 Demons=["this","that","these","those"]
 Aux=['be', 'am', 'are', 'is', 'being', 'was', 'were', 'been', "aren't", "isn't", "wasn't", "weren't"]
 Verbs=["VBZ","VB","VBP","VBD","VBN","VBG"]
+Perfect=["has","have","had"]
+Future=["will","shall","should","would"]
+Possessives=[["i","my","me","mine"],["she","her","hers"],["he","him","his"],["you","your","yours"],["it","its"],["we","us","our","ours"],["they","them","their","theirs"]]
+Poss=["i","my","me","mine","she","her","hers","he","him","his","you","your","yours","it","its","we","us","our","ours","they","them","their","theirs"]
+
 
 var=input()
 # token=nltk.word_tokenize(var)
@@ -53,6 +58,11 @@ def process(s):
 		# 	l=l+[joinlist(WHfam)]
 		if word in Demons:
 			l=l+[joinlist(Demons)]
+		elif word.lower() in Poss:
+			for xyz in Possessives:
+				if word.lower() in xyz:
+					l=l+[joinlist(xyz)]
+					break
 		elif y in Verbs:
 			if word in Aux:
 				l=l+[joinlist(Aux)]
