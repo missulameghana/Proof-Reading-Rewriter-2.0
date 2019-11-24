@@ -44,18 +44,19 @@ def query(v,i):
 
 	return d
 def process(s):
-	x=parse(s,tokenize=True,tags=True,chunks=True,encoding='utf-8')
-	lis=x.split(" ")
+	# x=parse(s,tokenize=True,tags=True,chunks=True,encoding='utf-8')
+	# lis=x.split(" ")
+	lis=nltk.pos_tag(nltk.word_tokenize(s))
 	l=[]
 	print(lis)
 	for ele in lis:
-		y=ele.split("/")[1]
-		word=ele.split("/")[0]
+		y=ele[1]
+		word=ele[0]
 		# if word in WHfam:
 		# 	l=l+[joinlist(WHfam)]
-		if word in Demons:
-			l=l+[joinlist(Demons)]
-		elif y in Verbs:
+		# if word in Demons:
+		# 	l=l+[joinlist(Demons)]
+		if y in Verbs:
 			# print(word)
 			if word in Aux:
 				l=l+[joinlist(Aux)]
@@ -66,14 +67,31 @@ def process(s):
 			l=l+[word]
 	return " ".join(l)
 def processWH(s):
-	x=parse(s,tokenize=True,tags=True,chunks=True,encoding='utf-8')
-	lis=x.split(" ")
+	lis=nltk.pos_tag(nltk.word_tokenize(s))
+	# lis=x.split(" ")
 	l=[]
 	for ele in lis:
-		y=ele.split("/")[1]
-		word=ele.split("/")[0]
+		y=ele[1]
+		word=ele[0]
 		if word in WHfam:
 			l=l+[joinlist(WHfam)]
+		# elif y in Verbs:
+		# 	if word in Aux:
+		# 		l=l+[joinlist(Aux)]
+		# 	else:
+		# 		l=l+[joinlist(lexeme(word))]
+		else:
+			l=l+[word]
+	return " ".join(l)
+def processDem(s):
+	lis=nltk.pos_tag(nltk.word_tokenize(s))
+	# lis=x.split(" ")
+	l=[]
+	for ele in lis:
+		y=ele[1]
+		word=ele[0]
+		if word in Demons:
+			l=l+[joinlist(Demons)]
 		# elif y in Verbs:
 		# 	if word in Aux:
 		# 		l=l+[joinlist(Aux)]
@@ -108,6 +126,29 @@ for t in trigrams:
 		# print(final)
 	else:
 		final_suggestions=final_suggestions+[{}]
+print(final_suggestions)
+
+for t in trigrams:
+	# count = count + 1
+	# if(t[0] in WHfam):
+	# 	st=st+" "+trigrams[count][0]
+	# print(st)
+	if(t[0] in Demons or t[1] in Demons or t[2] in Demons):
+		st=" ".join(t)
+		s=query(st,1)
+		if(len(s)==0):
+			suggest=processDem(st)
+			print(suggest)
+			final=query(suggest,6)
+			final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+		elif(threshold>=s[st.lower()]):
+			suggest=process(st)
+			print(suggest)
+			final=query(suggest,6)
+			final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+			# print(final)
+		else:
+			final_suggestions=final_suggestions+[{}]
 print(final_suggestions)
 
 for t in trigrams:
