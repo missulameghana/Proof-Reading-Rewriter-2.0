@@ -1,13 +1,19 @@
 import nltk
 import urllib
 import requests
-from pattern.en import tag,suggest,ngrams,parse,parsetree,pprint,lexeme
+from pattern.en import tag,suggest,ngrams,parse,parsetree,pprint,lexeme,referenced
 def joinlist(l):
 	return '/'.join(l)
-WHfam=["What","When","Where","Who","Whom","Which","Whose","Why","How"]
+WHfam=["what","when","where","who","whom","which","whose","why","how"]
 Demons=["this","that","these","those"]
-Aux=['be', 'am', 'are', 'is', 'being', 'was', 'were', 'been'] #, "aren't", "isn't", "wasn't", "weren't"]
+Aux=['be', 'am', 'are', 'is', 'being', 'was', 'were', 'been',"'s"] #, "aren't", "isn't", "wasn't", "weren't"]
 Verbs=["VBZ","VB","VBP","VBD","VBN","VBG"]
+Perfect=["has","have","had"]
+Future=["will","shall","should","would"]
+Possessives=[["i","my","me","mine"],["she","her","hers"],["he","him","his"],["you","your","yours"],["it","it's"],["we","us","our","ours"],["they","them","their","theirs"]]
+Poss=["i","my","me","mine","she","her","hers","he","him","his","you","your","yours","it","it's","we","us","our","ours","they","them","their","theirs"]
+Articles=["a","an","the"]
+Prepositions=["in","on","at"]
 
 instr=input()
 var=instr.lower()
@@ -43,12 +49,37 @@ def query(v,i):
 			d[val]=float(z[i])
 
 	return d
+
+def processArt(t):
+	# lis=nltk.pos_tag(nltk.word_tokenize(s))
+	# lis=x.split(" ")
+	l=[]
+	cnt=0
+	for ele in t:
+		cnt=cnt+1
+		# y=ele[1]
+		# word=ele[0]
+		if ele=="a":
+			if referenced(t[count]=="a"):
+				l=l+[joinlist(["a","the"])]
+			else:
+				l=l+[joinlist(["an","the"])]
+		elif ele=="an":
+			if referenced(t[count]=="an"):
+				l=l+[joinlist(["an","the"])]
+			else:
+				l=l+[joinlist(["a","the"])]
+		else:
+			l=l+[ele]
+	return " ".join(l)
+
+
 def process(s):
 	# x=parse(s,tokenize=True,tags=True,chunks=True,encoding='utf-8')
 	# lis=x.split(" ")
 	lis=nltk.pos_tag(nltk.word_tokenize(s))
 	l=[]
-	print(lis)
+	# print(lis)
 	for ele in lis:
 		y=ele[1]
 		word=ele[0]
@@ -56,6 +87,11 @@ def process(s):
 		# 	l=l+[joinlist(WHfam)]
 		# if word in Demons:
 		# 	l=l+[joinlist(Demons)]
+		# if word.lower() in Poss:
+		# 	for xyz in Possessives:
+		# 		if word.lower() in xyz:
+		# 			l=l+[joinlist(xyz)]
+		# 			break
 		if y in Verbs:
 			# print(word)
 			if word in Aux:
@@ -66,14 +102,15 @@ def process(s):
 		else:
 			l=l+[word]
 	return " ".join(l)
+
 def processWH(s):
-	lis=nltk.pos_tag(nltk.word_tokenize(s))
+	lis=s.split(" ")
 	# lis=x.split(" ")
 	l=[]
 	for ele in lis:
-		y=ele[1]
-		word=ele[0]
-		if word in WHfam:
+		# y=ele[1]
+		# word=ele
+		if ele in WHfam:
 			l=l+[joinlist(WHfam)]
 		# elif y in Verbs:
 		# 	if word in Aux:
@@ -81,16 +118,17 @@ def processWH(s):
 		# 	else:
 		# 		l=l+[joinlist(lexeme(word))]
 		else:
-			l=l+[word]
+			l=l+[ele]
 	return " ".join(l)
-def processDem(s):
-	lis=nltk.pos_tag(nltk.word_tokenize(s))
+
+def processDem(t):
+	# lis=nltk.pos_tag(nltk.word_tokenize(s))
 	# lis=x.split(" ")
 	l=[]
-	for ele in lis:
-		y=ele[1]
-		word=ele[0]
-		if word in Demons:
+	for ele in t:
+		# y=ele[1]
+		# word=ele[0]
+		if ele in Demons:
 			l=l+[joinlist(Demons)]
 		# elif y in Verbs:
 		# 	if word in Aux:
@@ -98,14 +136,78 @@ def processDem(s):
 		# 	else:
 		# 		l=l+[joinlist(lexeme(word))]
 		else:
+			l=l+[ele]
+	return " ".join(l)
+
+def processPoss(t):
+	# lis=nltk.pos_tag(nltk.word_tokenize(s))
+	# lis=x.split(" ")
+	l=[]
+	# cnt=0
+	for ele in t:
+		# cnt=cnt+1
+		# y=ele[1]
+		# word=ele[0]
+		if ele in Poss:
+			for xyz in Possessives:
+				if ele in xyz:
+					l=l+[joinlist(xyz)]
+					break
+		else:
 			l=l+[word]
 	return " ".join(l)
+
+def processPrep(t):
+	# lis=nltk.pos_tag(nltk.word_tokenize(s))
+	# lis=x.split(" ")
+	l=[]
+	for ele in t:
+		# y=ele[1]
+		# word=ele[0]
+		if ele in Prepositions:
+			l=l+[joinlist(Prepositions)]
+		# elif y in Verbs:
+		# 	if word in Aux:
+		# 		l=l+[joinlist(Aux)]
+		# 	else:
+		# 		l=l+[joinlist(lexeme(word))]
+		else:
+			l=l+[ele]
+	return " ".join(l)
+
 
 # print(process("He play cricket"))
 threshold=10000;
 # threshold_f=;
 count = 0;
-final_suggestions=[]
+suggestions=[]
+verb_list=[]
+# final_suggestions={}
+
+
+for t in trigrams:
+	# count = count + 1
+	# if(t[0] in WHfam):
+	# 	st=st+" "+trigrams[count][0]
+	# print(st)
+	if(t[0] in Articles or t[1] in Articles):
+		st=" ".join(t)
+		s=query(st,1)
+		if(len(s)==0):
+			suggest=processArt(t)
+			# print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		elif(threshold>=s[st.lower()]):
+			suggest=processArt(t)
+			# print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+			# print(final)
+		# else:
+		# 	suggestions=suggestions+[{}]
+print(suggestions)
+
 for t in trigrams:
 	# count = count + 1
 	st=" ".join(t)
@@ -116,17 +218,23 @@ for t in trigrams:
 	if(len(s)==0):
 		suggest=process(st)
 		print(suggest)
+		# print(suggest)
 		final=query(suggest,6)
-		final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+		print(final)
+		verb_list=verb_list+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
 	elif(threshold>=s[st.lower()]):
 		suggest=process(st)
-		print(suggest)
+		# print(suggest)
 		final=query(suggest,6)
-		final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+		print(final)
+		verb_list=verb_list+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
 		# print(final)
 	else:
-		final_suggestions=final_suggestions+[{}]
-print(final_suggestions)
+		verb_list=verb_list+[{}]
+print(suggestions)
+print("here")
 
 for t in trigrams:
 	# count = count + 1
@@ -137,64 +245,109 @@ for t in trigrams:
 		st=" ".join(t)
 		s=query(st,1)
 		if(len(s)==0):
-			suggest=processDem(st)
-			print(suggest)
+			suggest=processDem(t)
+			# print(suggest)
 			final=query(suggest,6)
-			final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
 		elif(threshold>=s[st.lower()]):
-			suggest=process(st)
-			print(suggest)
+			suggest=processDem(t)
+			# print(suggest)
 			final=query(suggest,6)
-			final_suggestions=final_suggestions+[dict(filter(lambda elem: elem[1]>=0.09, final.items()))]
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
 			# print(final)
-		else:
-			final_suggestions=final_suggestions+[{}]
-print(final_suggestions)
+		# else:
+		# 	suggestions=suggestions+[{}]
+print(suggestions)
 
 for t in trigrams:
 	count=count+1
 	if(t[0] in WHfam):
 		st=" ".join(t)
-		if not final_suggestions[count]:
+		if not verb_list[count]:
 			st=st+" "+trigrams[count][2]
 		else:
-			st=t[0]+" "+list(final_suggestions[count].keys())[0]
+			st=t[0]+" "+list(verb_list[count].keys())[0]
 			# print(st)
 		s=query(st,1)
 		if(len(s)==0):
 			suggest=processWH(st)
 			final=query(suggest,6)
-			final=dict(filter(lambda elem: elem[1]>=0.09, final.items()))
-			print(final)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
 		elif(threshold>=s[st.lower()]):
 			suggest=processWH(st)
 			# print(suggest)
 			final=query(suggest,6)
-			final=dict(filter(lambda elem: elem[1]>=0.09, final.items()))
-			print(final)
-		else:
-			final=s
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		# else:
+		# 	final=s
+print(suggestions)
+for t in trigrams:
+	# count = count + 1
+	# if(t[0] in WHfam):
+	# 	st=st+" "+trigrams[count][0]
+	# print(st)
+	if(t[0] in Possessives or t[1] in Possessives or t[2] in Possessives):
+		st=" ".join(t)
+		s=query(st,1)
+		if(len(s)==0):
+			suggest=processPoss(t)
+			print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		elif(threshold>=s[st.lower()]):
+			suggest=processPoss(t)
+			print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+			# print(final)
+		# else:
+		# 	suggestions=suggestions+[{}]
+print(suggestions)
+
+for t in trigrams:
+	# count = count + 1
+	# if(t[0] in WHfam):
+	# 	st=st+" "+trigrams[count][0]
+	# print(st)
+	if(t[0] in Prepositions or t[1] in Prepositions or t[2] in Prepositions):
+		st=" ".join(t)
+		s=query(st,1)
+		if(len(s)==0):
+			suggest=processPrep(t)
+			print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+		elif(threshold>=s[st.lower()]):
+			suggest=processPrep(t)
+			print(suggest)
+			final=query(suggest,6)
+			suggestions=suggestions+[dict(filter(lambda elem: elem[1]>=0.2, final.items()))]
+			# print(final)
+		# else:
+		# 	suggestions=suggestions+[{}]
+print(suggestions)
+
 # count=0
 # for t in trigrams:
 # 	count=count+1
 # 	if(t[0] in WHfam):
 # 		st=" ".join(t)
-# 		if not final_suggestions[count]:
+# 		if not suggestions[count]:
 # 			st=st+" "+trigrams[count][2]+" "+trigrams[count+1][0]
 # 		else:
-# 			r=list(final_suggestions[count].keys())[0].split(" ")[0]
-# 			st=t[0]+" "+list(final_suggestions[count].keys())[0]+" "+r
+# 			r=list(suggestions[count].keys())[0].split(" ")[0]
+# 			st=t[0]+" "+list(suggestions[count].keys())[0]+" "+r
 # 			# print(st)
 # 		s=query(st,1)
 # 		if(len(s)==0):
 # 			suggest=processWH(st)
 # 			final=query(suggest,6)
-# 			final=dict(filter(lambda elem: elem[1]>=0.09, final.items()))
+# 			final=dict(filter(lambda elem: elem[1]>=0.2, final.items()))
 # 		elif(threshold>=s[st.lower()]):
 # 			suggest=processWH(st)
 # 			# print(suggest)
 # 			final=query(suggest,6)
-# 			final=dict(filter(lambda elem: elem[1]>=0.09, final.items()))
+# 			final=dict(filter(lambda elem: elem[1]>=0.2, final.items()))
 # 		else:
 # 			final=s
 # 		print(final)
