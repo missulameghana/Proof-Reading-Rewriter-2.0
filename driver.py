@@ -241,5 +241,4 @@ for line in lines:
 					line[abc]=words[k]
 	x=k+1
 
-
 print(" ".join(words))
