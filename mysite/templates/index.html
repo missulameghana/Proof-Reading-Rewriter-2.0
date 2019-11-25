@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Proof Reading Rewriter</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<script>
+
+	
+	function spell(el){
+		var i = el.getAttribute('id');
+		var c = el.getAttribute('class');
+		console.log('ok')
+		document.forms['myforu'].fields['i'].value= i
+		document.forms['myforu'].fields['c'].value= c
+		document.forms['myforu'].submit()
+		
+	}
+	function ignore(el){
+		var c = el.getAttribute('class')
+		var data = {'ignore':c,'mode':'ignore'};
+		$.post(URL,data)
+	}
+</script>
+<div class="container">
+  <h2>Proof Reading Rewriter</h2>
+  
+  <form id='kuch' action="" method="post">
+  	 <label>Text to rewrite:</label>
+  	 {% csrf_token %}
+  	 {% if form %}
+  	 <p>
+  	 	{% autoescape off %}
+     {{form.as_p}}
+     {% endautoescape %}
+ 	</p>
+     {% endif %}
+ 
+    <input name="pehla" type="submit" value="Submit" />
+  </form>
+</div>
+<div class="container" class="und">
+	{% if dickt %}
+		{% for key,value in dickt.items %}
+		{% if value %}
+			<span style="text-decoration: underline; text-decoration-color: red">{{ key }}
+			</span>
+		{% elif key in dickt2 %}
+		<span style="text-decoration: underline; text-decoration-color: black">{{ key }}
+			</span>
+			{% else %}
+		
+		<span>{{key}}</span>
+		{% endif %}
+		
+
+		{% endfor %}
+
+	{% endif %}
+</div>
+
+<div class="container">
+	<h4> Misspelt:</h4>
+	<p> Choose to change the spellings or IGNORE: </p>
+	<form id = 'myforu' action="" method="post">
+		{% csrf_token %}
+		{% if foru %}
+		{{foru}}
+		{% endif %}
+	{% if dickt %}
+		{% for key,value in dickt.items %}
+		{% if value %}
+			<h5>{{ key }}</h5>
+			
+			{% for w in  value  %}
+				<button name="dusra" type = "{{w}}" class="{{key}}" id="{{w}}" onclick="spell(this)">{{w}}</button>
+			{% endfor %}
+			<button type="submit" class="{{key}}" onclick="ignore(this)">IGNORE</button>
+			</ul>
+		{% endif %}
+		{% endfor %}
+	{% endif %}
+</form>
+</div>
+<div class="container">
+	<h4>Suggested Synonyms:</h4>
+	<p> Choose to rewrite the words from the given suggestions or IGNORE</p>
+	{% if dickt2 %}
+			{% for key,value in dickt2.items %}
+		
+			<h5>{{ key }}</h5>
+			
+			{% for w in  value  %}
+				<button >{{w}}</button>
+			{% endfor %}
+			<button >IGNORE</button>
+			</ul>
+		
+		{% endfor %}
+
+	{% endif %}
+	</div>
+</body>
+</html>
