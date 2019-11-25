@@ -47,6 +47,7 @@ asd=var.split(" ")
 # 	j=j+1
 # print(var)
 words=re.findall(r"[\w']+|[.!?]",var)
+# print(words)
 lines=re.split('\? |\?|\. |\.|! |!',var);
 lines.pop()
 x=-1

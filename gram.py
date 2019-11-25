@@ -263,7 +263,7 @@ def Demform(l,index):
 def Whform(l,index):
 	suggestions=[]
 	if(l[index].lower() in WHfam):
-		if index+3>=len(l):
+		if index+3<len(l):
 			t=[l[index].lower(),l[index+1].lower(),l[index+2].lower(),l[index+3].lower()]
 		else:
 			t=[l[index].lower(),l[index+1].lower(),l[index+2].lower()]
@@ -273,7 +273,7 @@ def Whform(l,index):
 			suggest=processWH(st)
 			final=query(suggest,6)
 			suggestions=suggestions+list(dict(filter(lambda elem: elem[1]>=0.2, final.items())).keys())
-		elif(threshold>=s[st.lower()]):
+		elif(15000>=s[st.lower()]):
 			suggest=processWH(st)
 			# print(suggest)
 			final=query(suggest,6)
@@ -314,7 +314,7 @@ def Prepform(l,index):
 				print(suggest)
 				final=query(suggest,6)
 				suggestions=suggestions+list(dict(filter(lambda elem: elem[1]>=0.2, final.items())).keys())
-			elif(threshold>=s[st.lower()]):
+			elif(30000>=s[st.lower()]):
 				suggest=processPrep(t)
 				print(suggest)
 				final=query(suggest,6)
