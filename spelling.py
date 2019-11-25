@@ -9,8 +9,14 @@ def P(word, N=sum(WORDS.values())):
     return WORDS[word] / N
 
 def correction(word):
-    # return max(candidates(word), key=P)
-    return sorted(candidates(word),key=P,reverse=True)[0:5]
+    if word == "!" or word=="." or word=="?":
+        return []
+    else:
+        x=candidates(word)
+        if(list(x)[0]==word):
+            return []
+        else:
+            return sorted(x,key=P,reverse=True)[0:5]
 def candidates(word):
     return (known([word]) or known(edits1(word)) or [word])
 
@@ -25,3 +31,4 @@ def edits1(word):
     replaces   = [L + c + R[1:]           for L, R in splits if R for c in letters]
     inserts    = [L + c + R               for L, R in splits for c in letters]
     return set(deletes + transposes + replaces + inserts)
+#based on Peter Norvig's spelling correcter and levenshtien distance

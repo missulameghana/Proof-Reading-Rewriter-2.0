@@ -16,14 +16,26 @@ def syno(left,word,right):
 		syn_freq_dict = {}
 		S = set(synonyms)
 		S.discard(word)
+		for w in S:
+			S.remove(w)
+			w = w.replace("_"," ")
+			S.add(w)
 		#print(S)
 		syn_str = ""
 		if len(S) == 0:
 			return []
+		i=0
 		for syn in S:
-			syn_str = syn_str +"/"+ syn
+			if i<10:
+				if " " in syn:
+					i = i + 1
+				else:
+					syn_str = syn_str +"/"+ syn
+					i = i + 1
+
+				
 		syn_str = syn_str[1:]
-		print(syn_str)
+		#print(syn_str)
 		encoded_query = urllib.parse.quote(left+" "+syn_str+" "+right)
 		params = {'corpus': 'eng-us', 'query': encoded_query, 'topk': 10, 'format': 'tsv'}
 		params = '&'.join('{}={}'.format(name, value) for name, value in params.items())
@@ -35,7 +47,7 @@ def syno(left,word,right):
 		d={}
 		x=s.split("\n")
 		x.pop()
-		# #print(x)
+		# ##print(x)
 		for y in x:
 			z=y.split("\t")
 			val=z[0].lower()
@@ -50,7 +62,7 @@ def syno(left,word,right):
 			else:
 				d[val]=float(z[6])
 
-		print(d)
+		# #print(d)
 		# 	with open("out.tsv") as fin:
 		# 	    line = fin.readline()
 		# 	    match_count = sum(int(r[1]) for r in csv.reader(line,delimiter='\t'))
@@ -63,21 +75,23 @@ def syno(left,word,right):
 		Sf = []
 		n = len(d)
 		if n == 0:
-			##print(Sf)
-			#print("sent0")
+			###print(Sf)
+			##print("sent0")
+			Sf = list(S)
+			Sf = Sf[:5]
 			return Sf
 		elif n == 1:
-			#print(d)
+			##print(d)
 			Sf.append(list(d.keys())[0])
-			#print("sent1")
+			##print("sent1")
 			return Sf
 		elif n == 2:
 			Sf.append(list(d.keys())[0])
 			Sf.append(list(d.keys())[1])
-			#print("sent2")
+			##print("sent2")
 			return Sf
 		else:
-			#print("sent>3")
+			##print("sent>3")
 			Sf.append(list(d.keys())[0])
 			Sf.append(list(d.keys())[1])
 			Sf.append(list(d.keys())[2])
